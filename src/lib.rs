@@ -19,6 +19,22 @@ impl Vec3 {
     pub fn length_squared(self) -> f32 {
         (self.x * self.x) + (self.y * self.y) + (self.z * self.z)
     }
+
+    pub fn unit_vector(self) -> Vec3 {
+        let new = self / self.length();
+
+        new
+    }
+
+    pub fn cross(self, other: Vec3) -> Vec3 {
+        let new = Vec3 {
+            x: self.y * other.z - self.z * other.y,
+            y: self.z * other.x - self.y * other.x,
+            z: self.x * other.y - self.y * other.x,
+        };
+
+        new
+    }
 }
 
 // For more help on base traits that let us do 'operators overloading', see:

@@ -32,6 +32,11 @@ fn main() {
     let h = -a;
     println!("-{:?} = {:?}", &a, h);
 
+    let i = a.unit_vector();
+    println!("unit vector of {:?}= {:?}", &a, i);
+
+    let j = a.cross(b);
+    println!("cross() of {:?} and {:?} = {:?})", &a, &b, j);
     //lib::write_sample_image();
 }
 
