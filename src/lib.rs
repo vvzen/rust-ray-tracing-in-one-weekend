@@ -12,9 +12,9 @@ pub fn write_sample_image() {
 
             print!(
                 "{} {} {}\n",
-                (r * 255.999).round() as i32,
-                (g * 255.999).round() as i32,
-                (b * 255.999).round() as i32
+                (r * 255.999).floor() as i32,
+                (g * 255.999).floor() as i32,
+                (b * 255.999).floor() as i32
             );
         }
     }
