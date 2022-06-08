@@ -1,23 +1,127 @@
+use std::fmt;
 use std::ops;
 
-#[derive(Debug, Copy, Clone)]
-pub struct Point {
+pub type Point = Vec3;
+pub type Color = Vec3;
+
+#[derive(Debug, Copy, PartialEq, Clone)]
+pub struct Vec3 {
     pub x: f32,
     pub y: f32,
     pub z: f32,
 }
 
-// See: https://doc.rust-lang.org/rust-by-example/trait/ops.html
-// The `std::ops::Add` trait is used to specify the functionality of `+`.
-// Here, we make `Add<Point>` - the trait for addition with a RHS of type `Point`.
-impl ops::Add<Point> for Point {
-    type Output = Point;
+impl Vec3 {
+    pub fn length(self) -> f32 {
+        self.length_squared().sqrt()
+    }
 
-    fn add(mut self, other: Point) -> Point {
-        self.x = self.x + other.x;
-        self.y = self.y + other.y;
-        self.z = self.z + other.z;
-        self
+    pub fn length_squared(self) -> f32 {
+        (self.x * self.x) + (self.y * self.y) + (self.z * self.z)
+    }
+}
+
+// For more help on base traits that let us do 'operators overloading', see:
+// https://doc.rust-lang.org/rust-by-example/trait/ops.html
+
+// Here, we implement `Add<Vec3>` - the trait for addition with a RHS of type `Vec3`.
+impl ops::Add<Vec3> for Vec3 {
+    type Output = Vec3;
+
+    fn add(self, other: Vec3) -> Vec3 {
+        let new = Vec3 {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+        };
+
+        new
+    }
+}
+
+impl ops::Sub<Vec3> for Vec3 {
+    type Output = Vec3;
+
+    fn sub(self, other: Vec3) -> Vec3 {
+        let new = Vec3 {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+        };
+
+        new
+    }
+}
+
+impl ops::Neg for Vec3 {
+    type Output = Vec3;
+
+    fn neg(self) -> Vec3 {
+        let new = Vec3 {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        };
+
+        new
+    }
+}
+
+// LHS is a Vec3, RHS is a f32
+impl ops::Mul<f32> for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, other: f32) -> Vec3 {
+        let new = Vec3 {
+            x: self.x * other,
+            y: self.y * other,
+            z: self.z * other,
+        };
+        new
+    }
+}
+
+// LHS is a Vec3, RHS is a Vec3
+impl ops::Mul<Vec3> for Vec3 {
+    type Output = Vec3;
+
+    fn mul(self, other: Vec3) -> Vec3 {
+        let new = Vec3 {
+            x: self.x * other.x,
+            y: self.y * other.y,
+            z: self.z * other.z,
+        };
+        new
+    }
+}
+
+// LHS is a f32, RHS is a Vec3
+impl ops::Mul<Vec3> for f32 {
+    type Output = Vec3;
+
+    fn mul(self, other: Vec3) -> Vec3 {
+        let new = Vec3 {
+            x: self * other.x,
+            y: self * other.y,
+            z: self * other.z,
+        };
+        new
+    }
+}
+
+// LHS is a Vec3, RHS is a f32
+impl ops::Div<f32> for Vec3 {
+    type Output = Vec3;
+
+    fn div(self, other: f32) -> Vec3 {
+        let new = self * (1.0 / other);
+        new
+    }
+}
+
+impl fmt::Display for Vec3 {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Vec3 {{ x: {}, y: {}, z: {} }}", self.x, self.y, self.z)
     }
 }
 
