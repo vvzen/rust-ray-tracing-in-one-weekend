@@ -25,6 +25,7 @@ pub fn write_sample_image() {
     print!("P3\n{} {}\n255\n", image_width, image_height);
 
     for y in (0..image_height).rev() {
+        eprintln!("\rScanlines remaining: {}", y);
         for x in 0..image_width {
             let r = x as f32 / (image_width as f32 - 1.0);
             let g = y as f32 / (image_height as f32 - 1.0);

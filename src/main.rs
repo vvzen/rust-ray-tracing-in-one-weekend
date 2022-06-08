@@ -15,4 +15,6 @@ fn main() {
     let c = a + b;
 
     println!("{:?} + {:?} = {:?}", &a, &b, c);
+
+    lib::write_sample_image();
 }
