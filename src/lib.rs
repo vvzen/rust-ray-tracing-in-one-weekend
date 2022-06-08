@@ -1,3 +1,23 @@
+use std::ops;
+
+#[derive(Debug, Copy, Clone)]
+pub struct Point {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+}
+
+impl ops::Add<Point> for Point {
+    type Output = Point;
+
+    fn add(mut self, other: Point) -> Point {
+        self.x = self.x + other.x;
+        self.y = self.y + other.y;
+        self.z = self.z + other.z;
+        self
+    }
+}
+
 pub fn write_sample_image() {
     let image_width = 256;
     let image_height = 256;
