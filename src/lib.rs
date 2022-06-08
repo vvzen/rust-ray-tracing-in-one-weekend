@@ -7,6 +7,9 @@ pub struct Point {
     pub z: f32,
 }
 
+// See: https://doc.rust-lang.org/rust-by-example/trait/ops.html
+// The `std::ops::Add` trait is used to specify the functionality of `+`.
+// Here, we make `Add<Point>` - the trait for addition with a RHS of type `Point`.
 impl ops::Add<Point> for Point {
     type Output = Point;
 
