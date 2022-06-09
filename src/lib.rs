@@ -4,6 +4,37 @@ use std::ops;
 pub type Point = Vec3;
 pub type Color = Vec3;
 
+pub struct Ray {
+    pub origin: Point,
+    pub direction: Vec3,
+}
+
+impl Ray {
+    fn at(self, t: f32) -> Vec3 {
+        let result = self.origin + (t * self.direction);
+        result
+    }
+}
+
+pub fn ray_color(ray: &Ray) -> Color {
+    let unit_direction = ray.direction.unit_vector();
+    let t = 0.5 * (unit_direction.y + 1.0);
+    let white = Color {
+        x: 1.0,
+        y: 1.0,
+        z: 1.0,
+    };
+    let bg_color = Color {
+        x: 0.5,
+        y: 0.7,
+        z: 1.0,
+    };
+
+    let result = (1.0 - t) * white + t * bg_color;
+
+    result
+}
+
 #[derive(Debug, Copy, PartialEq, Clone)]
 pub struct Vec3 {
     pub x: f32,
@@ -125,6 +156,20 @@ impl ops::Mul<Vec3> for f32 {
     }
 }
 
+// LHS is a i32, RHS is a Vec3
+impl ops::Mul<Vec3> for i32 {
+    type Output = Vec3;
+
+    fn mul(self, other: Vec3) -> Vec3 {
+        let new = Vec3 {
+            x: self as f32 * other.x,
+            y: self as f32 * other.y,
+            z: self as f32 * other.z,
+        };
+        new
+    }
+}
+
 // LHS is a Vec3, RHS is a f32
 impl ops::Div<f32> for Vec3 {
     type Output = Vec3;
@@ -141,6 +186,15 @@ impl fmt::Display for Vec3 {
     }
 }
 
+pub fn print_color(color: &Vec3) {
+    print!(
+        "{} {} {}\n",
+        (color.x * 255.999).floor() as i32,
+        (color.y * 255.999).floor() as i32,
+        (color.z * 255.999).floor() as i32
+    );
+}
+
 pub fn write_sample_image() {
     let image_width = 256;
     let image_height = 256;
@@ -154,12 +208,62 @@ pub fn write_sample_image() {
             let g = y as f32 / (image_height as f32 - 1.0);
             let b = 0.25 as f32;
 
-            print!(
-                "{} {} {}\n",
-                (r * 255.999).floor() as i32,
-                (g * 255.999).floor() as i32,
-                (b * 255.999).floor() as i32
-            );
+            let color = Color { x: r, y: g, z: b };
+
+            print_color(&color);
+        }
+    }
+}
+
+pub fn write_sample_bg() {
+    // Image
+    let aspect_ratio = 16.0 / 9.0;
+    let image_width = 400.0;
+    let image_height = image_width / aspect_ratio;
+
+    // Camera
+    let viewport_height = 2.0;
+    let viewport_width = aspect_ratio * viewport_height;
+    let focal_length = 1.0;
+
+    let origin = Point {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    };
+    let horizontal = Vec3 {
+        x: viewport_width,
+        y: 0.0,
+        z: 0.0,
+    };
+    let vertical = Vec3 {
+        x: 0.0,
+        y: viewport_height,
+        z: 0.0,
+    };
+    let lower_left_corner = origin
+        - horizontal / 2.0
+        - vertical / 2.0
+        - Vec3 {
+            x: 0.0,
+            y: 0.0,
+            z: focal_length,
+        };
+
+    print!("P3\n{} {}\n255\n", image_width, image_height);
+
+    for y in (0..image_height as i32).rev() {
+        eprintln!("\rScanlines remaining: {}", y);
+        for x in 0..image_width as i32 {
+            let u = x as f32 / (image_width - 1.0);
+            let v = y as f32 / (image_height - 1.0);
+
+            let direction = lower_left_corner + u * horizontal + v * vertical - origin;
+            let ray = Ray { origin, direction };
+
+            let color = ray_color(&ray);
+
+            print_color(&color);
         }
     }
 }
