@@ -17,6 +17,19 @@ impl Ray {
 }
 
 pub fn ray_color(ray: &Ray) -> Color {
+    let sphere_center = Point {
+        x: 0.0,
+        y: 0.0,
+        z: -1.0,
+    };
+    if hit_sphere(sphere_center, 0.5, &ray) {
+        return Color {
+            x: 1.0,
+            y: 0.0,
+            z: 0.0,
+        };
+    }
+
     let unit_direction = ray.direction.unit_vector();
     let t = 0.5 * (unit_direction.y + 1.0);
     let white = Color {
@@ -56,18 +69,23 @@ impl Vec3 {
 
         new
     }
-
-    pub fn cross(self, other: Vec3) -> Vec3 {
-        let new = Vec3 {
-            x: self.y * other.z - self.z * other.y,
-            y: self.z * other.x - self.y * other.x,
-            z: self.x * other.y - self.y * other.x,
-        };
-
-        new
-    }
 }
 
+pub fn dot(a: Vec3, b: Vec3) -> f32 {
+    let result = a.x * b.x + a.y * b.y + a.z * b.z;
+
+    result
+}
+
+pub fn cross(a: Vec3, b: Vec3) -> Vec3 {
+    let new = Vec3 {
+        x: a.y * b.z - a.z * b.y,
+        y: a.z * b.x - a.y * b.x,
+        z: a.x * b.y - a.y * b.x,
+    };
+
+    new
+}
 // For more help on base traits that let us do 'operators overloading', see:
 // https://doc.rust-lang.org/rust-by-example/trait/ops.html
 
@@ -266,4 +284,14 @@ pub fn write_sample_bg() {
             print_color(&color);
         }
     }
+}
+
+pub fn hit_sphere(center: Point, radius: f32, ray: &Ray) -> bool {
+    let oc: Point = ray.origin - center;
+    let a = dot(ray.direction, ray.direction);
+    let b = 2.0 * dot(oc, ray.direction);
+    let c = dot(oc, oc) - radius * radius;
+    let discriminant = b * b - 4.0 * a * c;
+    let is_hit = discriminant > 0.0;
+    is_hit
 }
