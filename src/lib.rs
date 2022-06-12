@@ -10,8 +10,8 @@ pub struct Ray {
 }
 
 impl Ray {
-    fn at(self, t: f32) -> Vec3 {
-        let result = self.origin + (t * self.direction);
+    fn at(&self, t: f32) -> Point {
+        let result = self.origin + t * self.direction;
         result
     }
 }
@@ -22,14 +22,21 @@ pub fn ray_color(ray: &Ray) -> Color {
         y: 0.0,
         z: -1.0,
     };
-    if hit_sphere(sphere_center, 0.5, &ray) {
-        return Color {
-            x: 1.0,
-            y: 0.0,
-            z: 0.0,
-        };
+
+    // If we hit the sphere, draw the sphere
+    let t = hit_sphere(sphere_center, 0.5, &ray);
+    if t > 0.0 {
+        let normal = (ray.at(t) - sphere_center).unit_vector();
+
+        let color = Color {
+            x: normal.x + 1.0,
+            y: normal.y + 1.0,
+            z: normal.z + 1.0,
+        } * 0.5;
+        return color;
     }
 
+    // Draw the background
     let unit_direction = ray.direction.unit_vector();
     let t = 0.5 * (unit_direction.y + 1.0);
     let white = Color {
@@ -43,6 +50,7 @@ pub fn ray_color(ray: &Ray) -> Color {
         z: 1.0,
     };
 
+    // Linear interpolate to make a gradient background
     let result = (1.0 - t) * white + t * bg_color;
 
     result
@@ -286,12 +294,17 @@ pub fn write_sample_bg() {
     }
 }
 
-pub fn hit_sphere(center: Point, radius: f32, ray: &Ray) -> bool {
+pub fn hit_sphere(center: Point, radius: f32, ray: &Ray) -> f32 {
     let oc: Point = ray.origin - center;
+
     let a = dot(ray.direction, ray.direction);
     let b = 2.0 * dot(oc, ray.direction);
     let c = dot(oc, oc) - radius * radius;
+
     let discriminant = b * b - 4.0 * a * c;
-    let is_hit = discriminant > 0.0;
-    is_hit
+    if discriminant < 0.0 {
+        return -1.0;
+    } else {
+        return (-b - discriminant.sqrt()) / (2.0 * a);
+    }
 }
